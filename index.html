@@ -1,247 +1,173 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>نبراس - معاينة</title>
-  <style>
-    /* Reset & fonts */
-    :root{
-      --card-width: 380px;
-      --bg-start: #f3fbf9;
-      --bg-end: #f6fafc;
-      --accent: #2b8f6d;
-      --pill-bg: #f2f5f6;
-      --text: #222;
-      --muted: #7b7b7b;
-      --shadow: 0 10px 20px rgba(0,0,0,0.08);
-      --soft-shadow: 0 18px 30px rgba(26,40,40,0.06);
-    }
-    html,body{
-      height:100%;
-      margin:0;
-      font-family: "Helvetica Neue", "Avenir Next", "Arial", sans-serif;
-      background: linear-gradient(180deg,#0f1111 0%, #0f1111 100%); /* dark frame */
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:30px;
-    }
-    /* phone container frame */
-    .frame {
-      width: calc(var(--card-width) + 40px);
-      height: 820px;
-      border-radius: 28px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(245,250,249,0.95));
-      box-shadow: 0 30px 60px rgba(0,0,0,0.6);
-      padding: 18px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
+    <meta charset="UTF-8">
+    <title>Nebras</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-    /* inner card to mimic screenshot gradient */
-    .card {
-      width: var(--card-width);
-      height: 780px;
-      border-radius: 26px;
-      background: linear-gradient(180deg,#f7fbfa, #eef6f5 60%);
-      box-shadow: var(--soft-shadow);
-      padding: 28px 26px;
-      box-sizing: border-box;
-      position:relative;
-      overflow:hidden;
-      direction: rtl;
-    }
+    <style>
+        body {
+            background-color: #f3f3f3;
+            font-family: "Tajawal", sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
 
-    /* header */
-    .top {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      margin-bottom: 12px;
-    }
-    .brand {
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight:800;
-      font-size:30px;
-      color:#111;
-      letter-spacing:1px;
-    }
-    .logo {
-      width:44px;
-      height:44px;
-      border-radius:8px;
-      background: linear-gradient(180deg,#1d6f54,#2aa374);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:white;
-      font-weight:700;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.12);
-    }
+        .card {
+            background: linear-gradient(#ffffff, #eef3f0);
+            width: 420px;
+            border-radius: 30px;
+            margin-top: 30px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
 
-    /* emergency button */
-    .emergency {
-      display:block;
-      width:176px;
-      margin: 8px auto 18px auto;
-      background:transparent;
-      border: 2px solid #e06b6b;
-      color:#c33;
-      border-radius: 24px;
-      padding:10px 14px;
-      text-align:center;
-      font-weight:700;
-      box-shadow: 0 16px 26px rgba(224,107,107,0.08);
-    }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-    h3.section-title{
-      text-align:center;
-      margin:12px 0 18px 0;
-      color:var(--muted);
-      font-size:16px;
-      font-weight:600;
-    }
+        .logo-area img {
+            width: 40px;
+        }
 
-    hr.sep { border: none; border-top:1px solid rgba(0,0,0,0.06); margin: 8px 0 18px 0; }
+        .alert-btn {
+            margin: 25px auto;
+            background-color: #fff3f3;
+            color: #d33131;
+            width: 150px;
+            text-align: center;
+            padding: 8px 0;
+            border-radius: 20px;
+            font-size: 15px;
+            border: 1px solid #ffd3d3;
+        }
 
-    /* info rows */
-    .row {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(0,0,0,0.03);
-    }
-    .label { color:var(--muted); font-size:15px; width:40%; text-align:right; padding-right:6px; }
-    .value {
-      width:60%;
-      text-align:left;
-      font-weight:600;
-    }
+        h3 {
+            text-align: center;
+            margin-top: 30px;
+            font-weight: 600;
+        }
 
-    /* pill style read-only field */
-    .pill {
-      display:inline-block;
-      min-width:92px;
-      padding:8px 14px;
-      border-radius:22px;
-      background:var(--pill-bg);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 12px 28px rgba(12,18,18,0.05);
-      border: 1px solid rgba(0,0,0,0.06);
-      color: #333;
-      font-weight:600;
-      text-align:center;
-    }
+        hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #ccc;
+        }
 
-    .children-list { font-size:13px; color:#444; margin-top:6px; padding-right:6px; }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
 
-    /* footer card */
-    .footer {
-      position:absolute;
-      bottom:18px;
-      left:18px;
-      right:18px;
-      background:white;
-      border-radius:20px;
-      padding:12px 16px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      box-shadow: var(--shadow);
-    }
-    .house {
-      display:flex;
-      gap:10px;
-      align-items:center;
-      font-weight:700;
-      color:#222;
-    }
-    .house .icon {
-      width:36px; height:36px; border-radius:10px;
-      display:flex; align-items:center; justify-content:center;
-      background: linear-gradient(180deg,#fff,#f0f6f5);
-      border:1px solid rgba(0,0,0,0.04);
-    }
-    .meta { text-align:left; color:var(--muted); font-size:13px; }
+        .label {
+            color: #444;
+        }
 
-    /* small screens */
-    @media (max-width:420px){
-      .frame { transform:scale(0.9); }
-    }
-  </style>
+        .value-box {
+            width: 120px;
+            text-align: center;
+            padding: 6px 0;
+            background: #f7f7f7;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            pointer-events: none;
+        }
+
+        .footer {
+            background: #ffffff;
+            padding: 20px;
+            margin-top: 25px;
+            border-radius: 25px;
+            text-align: center;
+        }
+
+        .footer img {
+            width: 35px;
+        }
+
+        .footer-id {
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .footer-date {
+            margin-top: 5px;
+            font-size: 13px;
+            color: #666;
+        }
+    </style>
 </head>
+
 <body>
-  <div class="frame" role="main">
-    <div class="card" aria-label="نبراس معاينة">
-      <div class="top">
-        <div class="brand"><div class="logo">🏠</div>NEBRAS</div>
-        <div style="width:44px;"></div>
-      </div>
 
-      <button class="emergency">{{ d.emergency_button_label }}</button>
+<div class="card">
 
-      <h3 class="section-title">معلومات المنزل</h3>
-      <hr class="sep">
-
-      <div class="row">
-        <div class="label">حالة المنزل</div>
-        <div class="value"><span class="pill" readonly>{{ d.status }}</span></div>
-      </div>
-
-      <div class="row">
-        <div class="label">عدد المتواجدين</div>
-        <div class="value"><span class="pill">{{ d.occupants }}</span></div>
-      </div>
-
-      <div class="row" style="flex-direction:row;">
-        <div class="label">يوجد اطفال</div>
-        <div class="value">
-          <span class="pill">{{ d.has_children }}</span>
-          <div class="children-list">
-            {% for c in d.children_details %}
-              <div>{{ c.label }} : {{ c.age }}</div>
-            {% endfor %}
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="label">يوجد كبار سن</div>
-        <div class="value"><span class="pill">{{ d.has_elderly }}</span></div>
-      </div>
-
-      <div class="row">
-        <div class="label">يوجد حالات خاصة</div>
-        <div class="value"><span class="pill">{{ d.has_medical_cases }}</span></div>
-      </div>
-
-      <div class="row">
-        <div class="label">مصادر خطرة</div>
-        <div class="value"><span class="pill">{{ d.hazard_sources }}</span></div>
-      </div>
-
-      <div class="row">
-        <div class="label">رقم اتصال اساسي</div>
-        <div class="value"><span class="pill">{{ d.primary_contact }}</span></div>
-      </div>
-
-      <!-- footer with id and date -->
-      <div class="footer" role="contentinfo">
-        <div class="house">
-          <div class="icon">🏠</div>
-          <div>
-            <div>{{ d.house_id }}</div>
-          </div>
-        </div>
-        <div class="meta">
-          اخر تحديث للبيانات: <div style="font-weight:700;">{{ d.last_update }}</div>
-        </div>
-      </div>
+    <!-- Logo -->
+    <div class="logo-area">
+        <h1>NEBRAS</h1>
+        <img src="https://cdn-icons-png.flaticon.com/512/6334/6334812.png">
     </div>
-  </div>
+
+    <!-- Alert Button -->
+    <div class="alert-btn">مباشرة بالبلاغ</div>
+
+    <h3>معلومات المنزل</h3>
+    <hr>
+
+    <div class="row">
+        <span class="label">حالة المنزل</span>
+        <div class="value-box">{{ data.status }}</div>
+    </div>
+
+    <div class="row">
+        <span class="label">عدد المتواجدين</span>
+        <div class="value-box">{{ data.residents }}</div>
+    </div>
+
+    <div class="row">
+        <span class="label">يوجد أطفال</span>
+        <div class="value-box">{{ data.has_children }}</div>
+    </div>
+
+    <div style="margin-right:20px; color:#555;">
+        طفل 1: {{ data.child1_age }}<br>
+        طفل 2: {{ data.child2_age }}
+    </div>
+
+    <div class="row">
+        <span class="label">يوجد كبار سن</span>
+        <div class="value-box">{{ data.elderly }}</div>
+    </div>
+
+    <div class="row">
+        <span class="label">يوجد حالات خاصة</span>
+        <div class="value-box">{{ data.special_cases }}</div>
+    </div>
+
+    <div class="row">
+        <span class="label">مصادر خطرة</span>
+        <div class="value-box">{{ data.danger }}</div>
+    </div>
+
+    <div class="row">
+        <span class="label">رقم اتصال أساسي</span>
+        <div class="value-box">{{ data.phone }}</div>
+    </div>
+
+    <div class="footer">
+        <img src="https://cdn-icons-png.flaticon.com/512/25/25694.png">
+        <div class="footer-id">{{ data.home_id }}</div>
+        <div class="footer-date">اخر تحديث للبيانات: {{ data.updated }}</div>
+    </div>
+
+</div>
+
 </body>
 </html>
