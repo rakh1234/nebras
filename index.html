@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>نبراس — Emergency Home Card (Demo)</title>
+<style>
+  :root{--accent:#0B72FF;--success:#28a745;--bg:#f6f8fb;--card:#fff;}
+  body{font-family:Inter, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:var(--bg); color:#222; margin:0; padding:24px; direction: rtl}
+  .container{max-width:900px;margin:0 auto}
+  header{display:flex;gap:16px;align-items:center}
+  .logo{width:68px;height:68px;border-radius:12px;background:linear-gradient(135deg,#0B72FF,#6BB7FF);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:20px}
+  h1{margin:0;font-size:20px}
+  .card{background:var(--card);padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(11, 114, 255, .06);margin-top:18px}
+  .controls{display:flex;gap:12px;flex-wrap:wrap}
+  button{background:var(--accent);color:white;border:0;padding:10px 16px;border-radius:10px;cursor:pointer}
+  .secondary{background:#eee;color:#333}
+  .info-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed #eee}
+  .muted{color:#666;font-size:13px}
+  .badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#f1f8ff;color:var(--accent);font-weight:600}
+  .danger{color:#c0392b;font-weight:700}
+  .status{display:flex;gap:10px;align-items:center}
+  .qr{width:120px;height:120px;background:#fff;border:1px solid #ddd;display:flex;align-items:center;justify-content:center;color:#aaa}
+  pre{background:#0f1724;color:#f8fafc;padding:12px;border-radius:8px;overflow:auto;font-size:13px}
+  footer{margin-top:18px;color:#666;font-size:13px}
+  .field{font-weight:700}
+  .value{font-weight:600}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo">NB</div>
+    <div>
+      <h1>نبراس — بطاقة الإنقاذ الذكية (عرض تجريبي)</h1>
+      <div class="muted">عرض واجهة رجال الطوارئ بعد مسح الشريحة/QR</div>
+    </div>
+  </header>
+
+  <div class="card" id="mainCard">
+    <div class="controls">
+      <button id="btnScan">مسح NFC (محاكاة)</button>
+      <button id="btnQR" class="secondary">QR احتياطي</button>
+      <button id="btnAuth" class="secondary">احصل على تصريح (محاكاة)</button>
+      <div style="margin-left:auto" class="badge" id="houseId">NB-0001</div>
+    </div>
+
+    <div id="status" style="margin-top:14px" class="muted">اضغط «مسح NFC» لمحاكاة المسح.</div>
+
+    <div id="profile" style="display:none;margin-top:14px">
+      <div class="info-row"><div><span class="field">حالة المنزل</span></div><div class="value" id="occupied">—</div></div>
+      <div class="info-row"><div><span class="field">عدد السكان</span></div><div class="value" id="people">—</div></div>
+      <div class="info-row"><div><span class="field">أطفال</span></div><div class="value" id="kids">—</div></div>
+      <div class="info-row"><div><span class="field">كبار سن</span></div><div class="value" id="elders">—</div></div>
+      <div class="info-row"><div><span class="field">حالات طبية</span></div><div class="value" id="medical">—</div></div>
+      <div class="info-row"><div><span class="field">مصادر خطر</span></div><div class="value danger" id="hazards">—</div></div>
+
+      <div style="display:flex;gap:12px;margin-top:12px;align-items:center">
+        <button id="call911">📞 اتصال بالطوارئ</button>
+        <button id="toggleEmergency" class="secondary">رفع حالة طوارئ (محاكاة)</button>
+        <div style="margin-left:auto" class="muted">المصدر: <strong>السجل الرسمي</strong></div>
+      </div>
+
+      <div style="margin-top:14px">
+        <div class="muted">تفاصيل جهة الاتصال:</div>
+        <div class="info-row"><div class="field">رقم</div><div class="value" id="phone">—</div></div>
+      </div>
+
+      <h3 style="margin-top:14px">سجل الوصول (محاكاة)</h3>
+      <pre id="log">— لا توجد عمليات بعد —</pre>
+    </div>
+
+    <div id="noAccess" style="display:none;margin-top:12px" class="muted">
+      ❗ لا يمكنك عرض المعلومات — تحتاج إلى جهاز مرخّص.
+    </div>
+
+  </div>
+
+  <footer>المحاكاة تعرض حماية الوصول: الطلب ينجح فقط إذا حصلت على "توكن" مصدّق من الخادم.</footer>
+</div>
+
+<script>
+  const houseId = 'NB-0001';            // ثابت للعرض
+  let authToken = null;
+
+  function log(msg){
+    const pre = document.getElementById('log');
+    const now = new Date().toLocaleTimeString();
+    pre.textContent = `${now} — ${msg}\n` + pre.textContent;
+  }
+
+  async function requestToken(){
+    log('طلب تصريح...');
+    const res = await fetch('/auth', { method: 'POST' });
+    if(!res.ok){ log('فشل الحصول على التصريح'); return null; }
+    const j = await res.json();
+    authToken = j.token;
+    log('تم استلام التصريح (محاكاة).');
+    document.getElementById('status').textContent = 'تم الحصول على تصريح مؤقت. يمكنك الآن المسح.';
+    return authToken;
+  }
+
+  async function fetchProfile(id){
+    document.getElementById('status').textContent = 'جاري جلب بيانات المنزل...';
+    // Attach token as header to simulate restricted access
+    const headers = authToken ? { 'Authorization': 'Bearer ' + authToken } : {};
+    const res = await fetch(`/api/house/${id}`, { headers });
+    if(res.status === 403){
+      document.getElementById('profile').style.display='none';
+      document.getElementById('noAccess').style.display='block';
+      document.getElementById('status').textContent = 'محظور: جهاز غير مرخّص';
+      log('تم رفض الوصول — جهاز غير مرخّص.');
+      return;
+    }
+    const data = await res.json();
+    document.getElementById('noAccess').style.display='none';
+    document.getElementById('profile').style.display='block';
+    document.getElementById('occupied').textContent = data.occupied ? 'مأهول' : 'خالي';
+    document.getElementById('people').textContent = data.count;
+    document.getElementById('kids').textContent = data.children;
+    document.getElementById('elders').textContent = data.elders;
+    document.getElementById('medical').textContent = data.medical || 'لا';
+    document.getElementById('hazards').textContent = data.hazards.join(', ') || 'لا';
+    document.getElementById('phone').textContent = data.contact_number;
+    document.getElementById('status').textContent = 'تم جلب البيانات بنجاح';
+    log('تم عرض بيانات المنزل بنجاح.');
+  }
+
+  document.getElementById('btnAuth').addEventListener('click', async () => {
+    await requestToken();
+  });
+
+  // Simulate NFC scan: opens the house profile with token header
+  document.getElementById('btnScan').addEventListener('click', async () => {
+    document.getElementById('status').textContent = 'محاكاة مسح NFC...';
+    log('محاكاة: مسح بطاقة NFC.');
+    // In real life the NFC payload would include an ID + signature; we simulate by calling fetch
+    await fetchProfile(houseId);
+  });
+
+  // QR fallback: show QR code (simulated) with direct link
+  document.getElementById('btnQR').addEventListener('click', () => {
+    alert('QR احتياطي: https://demo.local/scan/NB-0001 (محاكاة)');
+    log('عرض QR احتياطي.');
+  });
+
+  document.getElementById('call911').addEventListener('click', () => {
+    log('محاكاة: اتصال بالطوارئ (911).');
+    alert('اتصال بالطوارئ (محاكاة)');
+  });
+
+  document.getElementById('toggleEmergency').addEventListener('click', async () => {
+    log('رفع وضع الطوارئ (محاكاة) للجهات.');
+    alert('تم إرسال تنبيه الطوارئ (محاكاة)');
+  });
+
+</script>
+</body>
+</html>
